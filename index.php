@@ -1,5 +1,7 @@
-<?php  require_once("connect_db.php");
-  echo "Connection failed: ";
+<?php  require_once "controller.php";
+$product = (new controller())->product(1);
+$comments = (new controller())->comments(1);
+
 ?>
 
 <!DOCTYPE html>
@@ -29,14 +31,11 @@
 </div>
 
 <section class="container">
-  <img src="images/produc.png" alt="" width="400">
+  <img src="images/<?= $product['image']?>" alt="<?= $product['image']?>" width="400">
    <div class="card">
-   <em>$63.00</em>
-   <?php  require_once("connect_db.php");
-  echo "Connection failed: ";
-?>
+   <em>$<?= $product['price']?></em>
    <br>
-    <h1>Body Hero Dry Touch Oil Mist</h1>
+    <h1><?= $product['name']?></h1>
     <p>
       <span class="fa fa-star checked"></span>
       <span class="fa fa-star checked"></span>
@@ -45,8 +44,21 @@
       <span class="fa fa-star"></span>
     </p>
     <br>
-    <p>Niacinamide and Vitamin C are two anti-aging superstars but not usually formulated together because of their different pH levels.</p>
-   <button class="btn">Order Now</button> 
+    <p><?= $product['details']?></p>
+    <h3>comments</h3>
+    <div id="review-container">
+       <?php foreach($comments as $comment ){ ?>
+        <p> <?=  $comment['comment']?></p>
+      <?php } ?>
+    </div>
+  
+
+    <textarea id="review" name="review" required></textarea>
+    <button  id="send_comment" class="btn"> send Comment <span class="fa fa-comment"></span></button> 
+
+
+
+   
   </div>
 </section>
 
@@ -64,7 +76,7 @@
  padding: 1em;
  width: 40%;
  font-size: 1.3em;
- height: 85vh;
+
  }
 .btn{
   width: 100%;
@@ -83,5 +95,29 @@
  }
 </style>
 </html>
-<!-- https://beautycenterr.com/ -->
-<!-- https://numberonebeautycenter.com/bath-body-care/ -->
+<script>
+  
+  document.getElementById('send_comment').addEventListener('click',  saveReview);
+
+ function saveReview() {
+
+    var review = document.getElementById('review').value;
+    var productId = 1; // Replace with the actual product ID
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'save_review.php?action=&product_id=' + encodeURIComponent(productId), true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+            // Update the page with the new review
+            var reviewContainer = document.getElementById('review-container');
+            reviewContainer.innerHTML += '<div class="review"><p>' + "" + '</h3><p>' + review + '</p></div>';
+
+            // Clear the input fields
+            // document.getElementById('name').value = '';
+            document.getElementById('review').value = '';
+        }
+    };
+    xhr.send('review=' + encodeURIComponent(review));
+}
+</script>
